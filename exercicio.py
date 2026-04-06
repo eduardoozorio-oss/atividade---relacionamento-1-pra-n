@@ -26,3 +26,21 @@ class Motorista(Base):
     
 
 
+class Viagens(Base):
+    __tablename__ = "viagens"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nome = Column(String(100), nullable=False)
+
+    viagens = relationship("Viagens", secondary=inscricao, back_populates="estudantes")
+
+
+    def __repr__(self):
+        return f"- Viagens : id= {self.id} - nome: {self.nome}"
+  
+engine = create_engine("sqlite:///sistema_motorista.db")
+
+Base.metadata.create_all(engine)
+
+Session = sessionmaker(bind=engine)
+
