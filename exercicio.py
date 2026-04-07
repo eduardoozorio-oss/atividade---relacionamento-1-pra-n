@@ -62,3 +62,26 @@ def listar_motoristas():
             print(m)
 
 
+def adicionar_viagem():
+    with Session() as session:
+        try:
+            listar_motoristas()  # ajuda o usuário a ver IDs
+
+            nome_viagem = input("Digite o nome da viagem: ").capitalize()
+            motorista_id = int(input("Digite o ID do motorista: "))
+
+            viagem = Viagens(nome=nome_viagem, motorista_id=motorista_id)
+            session.add(viagem)
+            session.commit()
+
+            print("Viagem cadastrada com sucesso!")
+
+        except Exception as erro:
+            session.rollback()
+            print(f"Erro: {erro}")
+
+
+
+if __name__ == "__main__":
+    cadastrar_motorista()
+    adicionar_viagem()
