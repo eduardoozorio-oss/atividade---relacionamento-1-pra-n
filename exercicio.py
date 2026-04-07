@@ -55,3 +55,10 @@ def cadastrar_motorista():
             print(f"Erro: {erro}")
 
 
+def listar_motoristas():
+    with Session() as session:
+        motoristas = session.query(Motorista).all()
+        for m in motoristas:
+            print(m)
+
+
