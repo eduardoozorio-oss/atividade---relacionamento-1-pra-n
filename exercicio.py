@@ -1,46 +1,57 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Table
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
 Base = declarative_base()
 
-
-
-inscricao = Table(
-    "inscricoes", # nome da tabela
-    Base.metadata, #Registro da tabela para ser criado com create_all
-    Column("motorista_id", Integer, ForeignKey("motorista.id"), primary_key=True),
-    Column("viagens_id", Integer, ForeignKey("viagens.id"), primary_key=True)
-)
-
+# -------------------- MOTORISTA --------------------
 class Motorista(Base):
-    __tablename__ = "motorista"
+    __tablename__ = "motoristas"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     nome = Column(String(100), nullable=False)
 
-    viagens = relationship("Viagens", secondary=inscricao, back_populates="estudantes")
-
+    viagens = relationship("Viagens", back_populates="motorista")
 
     def __repr__(self):
-        return f"- Motorista: id= {self.id} - nome: {self.nome}"
-    
+        return f"- Motorista: id={self.id} - nome={self.nome}"
 
 
+# -------------------- VIAGENS --------------------
 class Viagens(Base):
     __tablename__ = "viagens"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     nome = Column(String(100), nullable=False)
 
-    viagens = relationship("Viagens", secondary=inscricao, back_populates="estudantes")
+    motorista_id = Column(Integer, ForeignKey("motoristas.id"))
 
+    motorista = relationship("Motorista", back_populates="viagens")
 
     def __repr__(self):
-        return f"- Viagens : id= {self.id} - nome: {self.nome}"
-  
-engine = create_engine("sqlite:///sistema_motorista.db")
+        return f"- Viagem: id={self.id} - nome={self.nome}"
 
+
+# -------------------- BANCO --------------------
+engine = create_engine("sqlite:///sistema_motorista.db")
 Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
+
+
+# -------------------- FUNÇÕES --------------------
+def cadastrar_motorista():
+    with Session() as session:
+        try:
+            nome = input("Digite o nome do motorista: ").capitalize()
+
+            motorista = Motorista(nome=nome)
+            session.add(motorista)
+            session.commit()
+
+            print("Motorista cadastrado com sucesso!")
+
+        except Exception as erro:
+            session.rollback()
+            print(f"Erro: {erro}")
+
 
